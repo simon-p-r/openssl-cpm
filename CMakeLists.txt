@@ -32,9 +32,18 @@ set(OPENSSL_URL "https://www.openssl.org/source/openssl-${OPENSSL_TARGET_VER}.ta
 set(OPENSSL_SHA256 "aaf2fcb575cdf6491b98ab4829abf78a3dec8402b8b81efc8f23c00d443981bf")
 
 
-find_program(MAKE_EXE NAMES gmake nmake make REQUIRED)
-find_program(PERL_EXE perl REQUIRED)
-find_program(NASM_EXE nasm REQUIRED)
+if(NOT DEFINED MAKE_EXE)
+    find_program(MAKE_EXE NAMES gmake nmake make REQUIRED)
+endif()
+
+if(NOT DEFINED PERL_EXE)
+    find_program(PERL_EXE perl REQUIRED)
+endif()
+
+if(NOT DEFINED NASM_EXE)
+    find_program(NASM_EXE nasm REQUIRED)
+endif()
+
 
 
 # enable-capieng
