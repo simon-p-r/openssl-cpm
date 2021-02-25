@@ -32,17 +32,9 @@ set(OPENSSL_URL "https://www.openssl.org/source/openssl-${OPENSSL_TARGET_VER}.ta
 set(OPENSSL_SHA256 "aaf2fcb575cdf6491b98ab4829abf78a3dec8402b8b81efc8f23c00d443981bf")
 
 
-if(NOT DEFINED MAKE_EXE)
-    find_program(MAKE_EXE NAMES gmake nmake make REQUIRED)
-endif()
-
-if(NOT DEFINED PERL_EXE)
-    find_program(PERL_EXE perl REQUIRED)
-endif()
-
-if(NOT DEFINED NASM_EXE)
-    find_program(NASM_EXE nasm REQUIRED)
-endif()
+find_program(MAKE_EXE NAMES gmake nmake make REQUIRED)
+find_program(PERL_EXE perl REQUIRED)
+find_program(NASM_EXE nasm REQUIRED)
 
 
 
@@ -87,22 +79,22 @@ endif()
 
 # unpack openssl
 CPMAddPackage(
-    NAME OpenSSL
+    NAME OpenSSL_Download
     VERSION 1.1.1j
     URL ${OPENSSL_URL}
     URL_HASH SHA256=${OPENSSL_SHA256}
 )
 
-if (OpenSSL_ADDED)
-    message("OpenSSL directory ${OpenSSL_SOURCE_DIR}")
-    set(OPENSSL_ROOT_DIR ${OpenSSL_BINARY_DIR})
+if (OpenSSL_Download_ADDED)
+    message("OpenSSL directory ${OpenSSL_Download_SOURCE_DIR}")
+    set(OPENSSL_ROOT_DIR ${OpenSSL_Download_BINARY_DIR})
     set(OPENSSL_CONFIGURE_CMD 
         ${OPENSSL_CONFIG} ${OPENSSL_SHARED_LIB} ${OPENSSL_CONFIGURE_OPTS} --prefix=${OPENSSL_ROOT_DIR} --openssldir=${OPENSSL_ROOT_DIR}
     )
     include(ExternalProject)
     ExternalProject_Add(
-        OpenSSL
-        SOURCE_DIR ${OpenSSL_SOURCE_DIR}
+        OpenSSL_Build
+        SOURCE_DIR ${OpenSSL_Download_SOURCE_DIR}
         BUILD_IN_SOURCE 1
         CONFIGURE_COMMAND ${PERL_EXE} Configure ${OPENSSL_CONFIGURE_CMD}
         BUILD_COMMAND ${MAKE_EXE}
