@@ -7,7 +7,6 @@ project(
 
 
 include(ExternalProject)
-include(BuildOpenSSL)
 
 unset(OPENSSL_INCLUDE_DIR CACHE)
 unset(OPENSSL_CRYPTO_LIBRARY CACHE)
