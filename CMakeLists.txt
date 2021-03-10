@@ -8,6 +8,7 @@ project(
 
 include(ExternalProject)
 
+
 unset(OPENSSL_INCLUDE_DIR CACHE)
 unset(OPENSSL_CRYPTO_LIBRARY CACHE)
 unset(OPENSSL_SSL_LIBRARY CACHE)
@@ -27,11 +28,14 @@ option(WITH_APPS "Build OpenSSL with apps" OFF)
 option(WITH_TEST "Build OpenSSL with testing" OFF)
 
 
-find_program(MAKE_EXE NAMES gmake nmake make REQUIRED)
 find_program(PERL_EXE perl REQUIRED)
 
 if(WIN32)
     find_program(NASM_EXE nasm REQUIRED)
+    find_program(MAKE_EXE NAMES nmake make REQUIRED)
+    find_program(JOM_EXE NAMES jom)
+else()
+    find_program(MAKE_EXE NAMES gmake make REQUIRED)
 endif()
 
 
@@ -70,13 +74,20 @@ endif()
 
 set(CONFIGURE_CMD Configure ${OPENSSL_TARGET_ARCH} ${CONFIGURE_OPTIONS})
 
+
+set(BUILD_CMD ${MAKE_EXE})
+if(WIN32)
+    set(BUILD_CMD ${JOM_EXE} /J 8)
+    set(CONFIGURE_CMD Configure ${OPENSSL_TARGET_ARCH} ${CONFIGURE_OPTIONS} /FS)
+endif()
+
 if(WITH_TEST)
     ExternalProject_Add(
         OpenSSL
         URL ${OPENSSL_URL}
         URL_HASH SHA256=${OPENSSL_SHA256}
         CONFIGURE_COMMAND ${PERL_EXE} ${CONFIGURE_CMD} --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>
-        BUILD_COMMAND ${MAKE_EXE}
+        BUILD_COMMAND ${BUILD_CMD}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ${INSTALL_CMD}
         TEST_COMMAND ${MAKE_EXE} test
@@ -88,7 +99,7 @@ else()
         URL ${OPENSSL_URL}
         URL_HASH SHA256=${OPENSSL_SHA256}
         CONFIGURE_COMMAND ${PERL_EXE} ${CONFIGURE_CMD} --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>
-        BUILD_COMMAND ${MAKE_EXE}
+        BUILD_COMMAND ${BUILD_CMD}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ${INSTALL_CMD}
     )
